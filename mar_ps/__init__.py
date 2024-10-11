@@ -1,7 +1,7 @@
 #### Multi-Agent Reasoning Problem Solver
 
 
-from typing import Union, Literal, Optional, TypedDict, Any
+from typing import Union, Literal, Optional, TypedDict, Any, Callable
 import asyncio
 import openai
 import ollama
@@ -49,6 +49,7 @@ class OpenAIClient(Client):
         chat_completion = self.openai.chat.completions.create(
             model=model_id,
             messages=messages,
+            stop=["From:", "\nTo:"],
             **options,
         )
         return chat_completion.choices[0].message.content or ""
@@ -223,6 +224,8 @@ class Entity(EntityName):
         error_handling_mode: Literal[
             "resend", "resend-empty-message", "quit"
         ] = "resend",
+        message_handler: Optional[Callable[["Message"], Any]] = None,
+        message_processor: Optional[Callable[["Message"], "Message"]] = None,
     ):
         if message != None:
             if sender == None and type(message) == Message and message.sender != None:
@@ -244,6 +247,10 @@ class Entity(EntityName):
                     )
                 else:
                     print(f"\x1b[32mMessage sent from {sender.id} to {self.id}.\x1b[0m")
+        if message and message_handler:
+            message_handler(message)
+        if message and message_processor:
+            message = message_processor(message)
         response = ""
         last_error_count = 0
         while True:
@@ -304,14 +311,14 @@ class Entity(EntityName):
                     [
                         entity
                         for entity in self.mar.entities
-                        if entity.id.lower() == recipient_name.lower()
+                        if entity.id.lower().replace(" ", "-").replace("_", "-")
+                        == recipient_name.lower().replace(" ", "-").replace("_", "-")
                     ],
                     0,
                     None,
                 )
                 if recipient is None:
-                    print(raw_response)
-                    error = f'Error: recipient not found: "{recipient_name}".'
+                    error = f'Error: recipient not found: "{recipient_name}". Remember, you may only message members of your team.'
                     if (
                         "," in recipient_name
                         or "&" in recipient_name
@@ -336,7 +343,15 @@ class Entity(EntityName):
         response_message = Message(self, recipient, response)
         self.message_stack.append(response_message)
         task = asyncio.create_task(
-            recipient.send(response_message, self, print_all_messages)
+            recipient.send(
+                response_message,
+                self,
+                print_all_messages,
+                max_errors_before_handling,
+                error_handling_mode,
+                message_handler,
+                message_processor,
+            )
         )
         await task
         return response

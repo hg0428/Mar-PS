@@ -9,7 +9,7 @@ from mar_ps import (
 
 
 ollama_client = OllamaClient()
-openai_client = OpenAIClient("http://localhost:1234/v1/")
+lm_studio_client = OpenAIClient("http://localhost:1234/v1/")  # For LM Studio
 mar = MAR()
 
 
@@ -29,7 +29,7 @@ def init_entities(pinned_messages: list[Message] = [], include_user: bool = Fals
 
 gemma2_9b = Model("gemma2:9b", ollama_client)
 gemma2_27b = Model("gemma2:27b", ollama_client)
-qwen2_5_7b_math = Model("qwen2.5-math-7b-instruct-4bit", openai_client)
+qwen2_5_7b_math = Model("qwen2.5-math-7b-instruct-4bit", lm_studio_client)
 # Now, create some entities.
 # Example:
 team_leader = mar.Entity(
@@ -43,15 +43,15 @@ mathematical_expert = mar.Entity(
     "Math Expert",
     "the top-ranked AI expert in math",
     "You carefully evaluate all mathematical problems. You are familiar with all mathematical concepts and you know when a problem is solvable and when it isn't.",
-    Model("qwen2.5-coder:7b-instruct", ollama_client),
-    options={"num_context": 64000},
+    qwen2_5_7b_math,
+    # Model("qwen2.5-coder:7b-instruct", ollama_client),
+    # options={"num_context": 64000},
 )
 reasoning = mar.Entity(
     "Reasoning Expert",
     "an expert in reasoning, logic, and common sense",
     "You walk through each step of the problem, making sure it is valid.",
-    # Model("qwen2.5:32b", ollama_client),
-    gemma2_27b,
+    Model("qwen2.5:32b", ollama_client),
     options={"num_context": 64000},
 )
 creativity = mar.Entity(
@@ -90,10 +90,10 @@ Questions = [
     "Design a house and give the details and dimensions.",
 ]
 mar.start(
-    team_leader.send(
+    mathematical_expert.send(
         f"Your team has the task of solving this problem: {input("Question: ")}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer. Make sure to fact check everything!",
         user,
-        print_all_messages=True,
+        # print_all_messages=True,
     )
 )  # Once you send a message, it starts a chain that keeps going indefinitely.
 # If you want it to act like o1, tell it that it is on a team of experts and they must work together to solve the problem
