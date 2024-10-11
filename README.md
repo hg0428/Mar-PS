@@ -307,3 +307,5 @@ Extracts the name and content from the generated message.
 - TODO: add support for multi-message responses
 
 NOTE: These will be VERY difficult to implement because every time an entity receives a message, it tries to reply. If you send a message to many entities, they will all try to reply.
+
+- Image input support
