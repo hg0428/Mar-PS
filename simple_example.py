@@ -40,4 +40,4 @@ for entity in mar.entities:
     )
 
 
-mar.start(logic_expert.send(input("You: "), user, print_all_messages=True))
+mar.start(logic_expert.send(input("You: "), user))
