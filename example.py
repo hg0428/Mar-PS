@@ -9,7 +9,7 @@ from mar_ps import (
 
 
 ollama_client = OllamaClient()
-openai_client = OpenAIClient()
+openai_client = OpenAIClient("http://localhost:1234/v1/")
 mar = MAR()
 
 
@@ -27,26 +27,32 @@ def init_entities(pinned_messages: list[Message] = [], include_user: bool = Fals
             entity.message_stack.append(message)
 
 
+gemma2_9b = Model("gemma2:9b", ollama_client)
 gemma2_27b = Model("gemma2:27b", ollama_client)
+qwen2_5_7b_math = Model("qwen2.5-math-7b-instruct-4bit", openai_client)
 # Now, create some entities.
 # Example:
 team_leader = mar.Entity(
     "Team Leader",
     "the team lead who manages all communications with the competition manager",
-    "You are the team's leader and you are responsible for making sure the team stays on track. You should handle the communications with the competition manager and make sure you do not do the same guess twice. Always double check to make sure everything goes smoothly.",
+    "You are the ai team's leader and you are responsible for making sure the team stays on track. You should handle the communications with the competition manager and make sure you do not do the same guess twice. Always double check to make sure everything goes smoothly.",
     gemma2_27b,
+    options={"num_context": 64000},
 )
 mathematical_expert = mar.Entity(
     "Math Expert",
     "the top-ranked AI expert in math",
-    "You carefully evaluate all mathematical problems.",
+    "You carefully evaluate all mathematical problems. You are familiar with all mathematical concepts and you know when a problem is solvable and when it isn't.",
     Model("qwen2.5-coder:7b-instruct", ollama_client),
+    options={"num_context": 64000},
 )
 reasoning = mar.Entity(
     "Reasoning Expert",
     "an expert in reasoning, logic, and common sense",
     "You walk through each step of the problem, making sure it is valid.",
-    Model("qwen2.5:32b", ollama_client),
+    # Model("qwen2.5:32b", ollama_client),
+    gemma2_27b,
+    options={"num_context": 64000},
 )
 creativity = mar.Entity(
     "Creative Spark",
@@ -54,12 +60,14 @@ creativity = mar.Entity(
     "",
     Model("llama3.1", ollama_client),
     temperature=0.8,
+    options={"num_context": 64000},
 )
 fact_checker = mar.Entity(
     "Fact Checker",
     "the fact checker for the team",
-    "You double check every claim and ensure accuracy in everything.",
-    gemma2_27b,
+    "You double check every claim and ensure accuracy in everything. You find errors and note problems to be fixed. You question all questionable reasoning.",
+    gemma2_9b,
+    options={"num_context": 64000},
 )
 user = mar.Entity(
     "Competition Manager",
@@ -82,9 +90,12 @@ Questions = [
 ]
 mar.start(
     team_leader.send(
-        f"Your team has the task of solving this problem: {Questions[3]}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer.",
+        f"Your team has the task of solving this problem: {input("Question: ")}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer. Make sure to fact check everything!",
         user,
         print_all_messages=True,
     )
 )  # Once you send a message, it starts a chain that keeps going indefinitely.
 # If you want it to act like o1, tell it that it is on a team of experts and they must work together to solve the problem
+# How many of the letter r is in the word "revolutionary"? How many is in the word "strawberry"? Carefully lay out each individual letter and count. Reflect on your counting and try again.
+# You have to make sure the team doesn't refine forever. They have to finish the competition in a reasonable amount of time.
+# Evaluate the expression \(10*10/10 + 10/10*10 - 20 + (5*5/5 + 5/5*5)\).

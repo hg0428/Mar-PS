@@ -269,7 +269,11 @@ class Entity(EntityName):
                 )
                 if recipient is None:
                     error = f'Error: recipient not found: "{recipient_name}".'
-                    if "," in recipient_name:
+                    if (
+                        "," in recipient_name
+                        or "&" in recipient_name
+                        or recipient_name in ["all", "team"]
+                    ):
                         error += (
                             " Currently, only one recipient per message is supported."
                         )
