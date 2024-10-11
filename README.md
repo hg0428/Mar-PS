@@ -294,6 +294,12 @@ Extracts the name and content from the generated message.
 
 - TODO: add streaming support
 
+- RAG support
+
+- Memory support to save important information
+
+- Cross-conversation learning
+
 ### Backends to add
 
 - MLX-ENGINE (<https://github.com/lmstudio-ai/mlx-engine/>)
