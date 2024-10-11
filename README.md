@@ -226,7 +226,7 @@ A short, single sentence introduction of this entity. It should have no ending p
 
 #### `Entity.personal_prompt`
 
-A personal prompt for this entity. Tell the entity how to act and respond. 
+A personal prompt for this entity. Tell the entity how to act and respond.
 
 #### `Entity.temperature`
 
