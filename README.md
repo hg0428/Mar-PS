@@ -207,7 +207,7 @@ Initializes the entity. Please use `MAR.Entity()` instead. See reference there f
 Generates a response from the entity.
 Streaming is not supported, but the parameter is there. If set to true, you will get a `NotImplementedError`.
 
-#### `Entity.send(self, message: Message | str | None = None, sender: Optional[EntityName] = None, print_all_messages: bool = False, max_errors_before_handling: int = 3,error_handling_mode: Literal["resend", "resend-empty-message", "quit"] = "resend", message_handler: Optional[Callable] = None)`
+#### `Entity.send(self, message: Message | str | None = None, sender: Optional[EntityName] = None, print_all_messages: bool = False, max_errors_before_handling: int = 3,error_handling_mode: Literal["resend", "resend-empty-message", "quit"] = "resend", message_handler: Optional[Callable] = None, user_input_handler: Callable[[], str])`
 
 Sends a message to the entity.
 `message`: The message to send. May be a `Message` object (which includes information such as sender or recipient), or a string. If it is a string, the `sender` parameter is required.
@@ -222,6 +222,7 @@ Sends a message to the entity.
 
 `message_handler`: If provided, this function will be called with the message as an argument. This can be useful for custom logging or other purposes.
 `message_processor`: If provided, this function will be called with the message as an argument. It is expected to return a `Message`, which will replace the original message.
+`user_input_handler`: Defaults to `lambda: input("\x1b[31mYou: \x1b[0m").replace("\\n", "\n")`. This defines how the user input is recieved. It should be a callable that takes no arguments and returns a string.
 
 #### `Entity.mar`
 

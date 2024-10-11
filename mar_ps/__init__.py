@@ -226,6 +226,9 @@ class Entity(EntityName):
         ] = "resend",
         message_handler: Optional[Callable[["Message"], Any]] = None,
         message_processor: Optional[Callable[["Message"], "Message"]] = None,
+        user_input_handler: Callable[[], str] = lambda: input(
+            "\x1b[31mYou: \x1b[0m"
+        ).replace("\\n", "\n"),
     ):
         if message != None:
             if sender == None and type(message) == Message and message.sender != None:
@@ -288,7 +291,7 @@ class Entity(EntityName):
             if self.is_user:
                 if sender and message:
                     print(f"\x1b[31mAI ({sender.id}): \x1b[0m{message.content}")
-                raw_response = input("\x1b[31mYou: \x1b[0m").replace("\\n", "\n")
+                raw_response = user_input_handler()
                 if not raw_response.startswith("To:") and sender:
                     raw_response = f"To: {sender.id}\n" + raw_response
             else:

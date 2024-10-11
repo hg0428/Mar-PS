@@ -43,9 +43,9 @@ mathematical_expert = mar.Entity(
     "Math Expert",
     "the top-ranked AI expert in math",
     "You carefully evaluate all mathematical problems. You are familiar with all mathematical concepts and you know when a problem is solvable and when it isn't.",
-    qwen2_5_7b_math,
-    # Model("qwen2.5-coder:7b-instruct", ollama_client),
-    # options={"num_context": 64000},
+    # qwen2_5_7b_math,
+    Model("qwen2.5-coder:7b-instruct", ollama_client),
+    options={"num_context": 64000},
 )
 reasoning = mar.Entity(
     "Reasoning Expert",
