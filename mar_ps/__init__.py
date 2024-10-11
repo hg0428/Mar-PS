@@ -68,7 +68,7 @@ class OllamaClient(Client):
     async def get_chat_completion(
         self, messages, model_id: str = "gpt-4o-mini", options={}
     ):
-        x = ollama.chat(
+        response = ollama.chat(
             model_id,
             messages,
             options={
@@ -79,8 +79,7 @@ class OllamaClient(Client):
             },
             stream=False,
         )
-        print(x)
-        return x["message"]["content"]
+        return response["message"]["content"]
 
 
 class Model:
