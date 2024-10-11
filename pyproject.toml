@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "mar-ps"
-version = "0.0.1"
+version = "0.1.0"
 authors = [{ name = "Hudson Gouge", email = "hudson.gouge@icloud.com" }]
 description = "Multi-Agent Reasoning Problem Solver"
 readme = "README.md"

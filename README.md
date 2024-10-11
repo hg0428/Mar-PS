@@ -11,7 +11,10 @@ It can be installed via `pip` with the following command:
 
 ## Backends
 
-Currently, MAR-PS supports both Ollama and OpenAI as backends. We plan to add support for other backends in the future.
+Currently, MAR-PS supports both Ollama and OpenAI as backends.
+Via the OpenAI backend, you can also use LM Studio models when the LM Studio server is on. Many different systems support the OpenAI API format.
+
+We plan to add support for other backends, such as `MLX` or `transformers` in the future.
 
 ## Usage
 

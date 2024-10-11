@@ -27,13 +27,14 @@ def init_entities(pinned_messages: list[Message] = [], include_user: bool = Fals
             entity.message_stack.append(message)
 
 
+gemma2_27b = Model("gemma2:27b", ollama_client)
 # Now, create some entities.
 # Example:
 team_leader = mar.Entity(
     "Team Leader",
     "the team lead who manages all communications with the competition manager",
     "You are the team's leader and you are responsible for making sure the team stays on track. You should handle the communications with the competition manager and make sure you do not do the same guess twice. Always double check to make sure everything goes smoothly.",
-    Model("gemma2:27b", ollama_client),
+    gemma2_27b,
 )
 mathematical_expert = mar.Entity(
     "Math Expert",
@@ -52,6 +53,13 @@ creativity = mar.Entity(
     "an expert in creativity and coming up with ideas",
     "",
     Model("llama3.1", ollama_client),
+    temperature=0.8,
+)
+fact_checker = mar.Entity(
+    "Fact Checker",
+    "the fact checker for the team",
+    "You double check every claim and ensure accuracy in everything.",
+    gemma2_27b,
 )
 user = mar.Entity(
     "Competition Manager",
@@ -59,6 +67,7 @@ user = mar.Entity(
     is_user=True,  # If you want to be involved, make sure to set is_user=True on one of them.
     pin_to_all_models=True,  # This lets all models see your messages
 )
+
 # You can then start the conversation by sending a message.
 init_entities()  # This initializes the system prompt for all entities, telling it who it is and what other entities are available.
 Questions = [
@@ -73,7 +82,7 @@ Questions = [
 ]
 mar.start(
     team_leader.send(
-        f"Your team has the task of solving this problem: {Questions[7]}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer.",
+        f"Your team has the task of solving this problem: {Questions[3]}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer.",
         user,
         print_all_messages=True,
     )
