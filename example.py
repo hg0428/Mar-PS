@@ -84,7 +84,6 @@ mar.start(
     team_leader.send(
         f"Your team has the task of solving this problem: {Questions[3]}\nNo time for courtesy, this is a competition. You've got to think through this carefully and discuss with your team. Once you have the final answer, send it to me. Note: There may not even be an answer. Don't try to solve a problem that can't be solved. Do not message me unless you have the final answer.",
         user,
-        print_all_messages=True,
     )
 )  # Once you send a message, it starts a chain that keeps going indefinitely.
 # If you want it to act like o1, tell it that it is on a team of experts and they must work together to solve the problem

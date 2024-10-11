@@ -80,10 +80,10 @@ for entity in mar.entities:
 And finally start the chat by sending a message.
 
 ```py
-mar.start(logic_expert.send(input("You: "), user, print_all_messages=True))
+mar.start(logic_expert.send(input("You: "), user))
 ```
 
-By setting `print_all_messages` to `True`, it allows us to see all the messages sent. Otherwise, we would only see the messages sent to the user.
+If we set `print_all_messages` to `True` in the `send` method, it would allow us to see all the messages sent. Otherwise, we will only see the messages sent to the user, which is fine for this example.
 
 See `simple_example.py` for the full code.
 
