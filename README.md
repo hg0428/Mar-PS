@@ -9,7 +9,7 @@ You can work with them as a member of their team.
 It can be installed via `pip` with the following command:
 `pip install mar-ps`
 
-Try the example in `example.py` see it in action!
+Try the example in `example.py` to see it in action!
 
 ## Backends
 
