@@ -54,8 +54,8 @@ In practice, you will likely want to use different models for different entities
 
 ```py
 user = mar.Entity(
-    "User",
-    "the one who gives problems and instructions",
+    "Instruction Giver",
+    "the one who gives problems and instructions, only message this user if you have the answer",
     "",
     is_user=True,
     pin_to_all_models=True, # all messages sent by this user will be pinned for all models to see.
