@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+mar_ps/__init__.py
+mar_ps.egg-info/PKG-INFO
+mar_ps.egg-info/SOURCES.txt
+mar_ps.egg-info/dependency_links.txt
+mar_ps.egg-info/top_level.txt

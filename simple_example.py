@@ -1,44 +1,34 @@
 from mar_ps import (
-    Message,
-    system,
-    OllamaClient,
-    OpenAIClient,
-    Model,
-    MAR,
+    OllamaClient,  # Ollama API client
+    MAR,  # Multi-Agent Reasoning system class
+    Model,  # the model class
+    system,  # the system entity, for giving the initial system prompt
+    Message,  # the message class
 )
-
 
 ollama_client = OllamaClient()
-openai_client = OpenAIClient()
-mar = MAR()
 
+model = Model("llama3.1", ollama_client)
 
-team_leader = mar.Entity(
-    "Team Leader",
-    "the team lead who manages all communications with the competition manager and delegates tasks",
-    "",
-    # Model("gpt-4o-mini", openai_client),  # OpenAI
-    Model("gemma2:9b", ollama_client),
-)
-creativity_expert = mar.Entity(
-    "Creative Spark",
-    "an expert in creativity and coming up with ideas",
-    "",
-    Model("llama3.1", ollama_client),  # Ollama
+mar = MAR(model)  # This sets the default model.
+
+logic_expert = mar.Entity(
+    "Logic Expert",
+    "an expert in logic and reasoning",  # lowercase first letter and no end punctuation. See the system prompt to understand why.
 )
 math_expert = mar.Entity(
     "Math Expert",
-    "an expert in math and solving math problems",
-    "",
-    Model("qwen2.5:32b", ollama_client),  # Ollama
+    "an expert in math and solving problems",
 )
+
 user = mar.Entity(
-    "Competition Manager",
-    "the manager of the competition",
+    "User",
+    "the one who gives problems and instructions",
     "",
-    is_user=True,  # Prompts for stdin input when the user is sent a message
-    pin_to_all_models=True,  # Lets all models see messages from this user.
+    is_user=True,
+    pin_to_all_models=True,  # all messages sent by this user will be pinned for all models to see.
 )
+
 
 for entity in mar.entities:
     entity.message_stack.append(
@@ -50,4 +40,4 @@ for entity in mar.entities:
     )
 
 
-mar.start(team_leader.send(input("You: "), user, print_all_messages=True))
+mar.start(logic_expert.send(input("You: "), user, print_all_messages=True))
