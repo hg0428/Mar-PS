@@ -292,15 +292,17 @@ Extracts the name and content from the generated message.
 
 ### Features to add
 
-- TODO: add tool support
+- Tool support
 
-- TODO: add streaming support
+- Streaming support (This can be used to catch incorrect formatting earlier on)
 
 - RAG support
 
 - Memory support to save important information
 
 - Cross-conversation learning
+
+- Test Cases to make sure everything works before publishing
 
 ### Backends to add
 
@@ -310,9 +312,9 @@ Extracts the name and content from the generated message.
 
 ### Hard ones to add
 
-- TODO: add support for multi-recipient messages
+- Support for multi-recipient messages
 
-- TODO: add support for multi-message responses
+- Support for multi-message responses
 
 NOTE: These will be VERY difficult to implement because every time an entity receives a message, it tries to reply. If you send a message to many entities, they will all try to reply.
 
