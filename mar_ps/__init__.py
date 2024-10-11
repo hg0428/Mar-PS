@@ -47,7 +47,9 @@ class OpenAIClient(Client):
         self, messages, model_id: str = "gpt-4o-mini", options={}
     ):
         chat_completion = self.openai.chat.completions.create(
-            model=model_id, messages=messages
+            model=model_id,
+            messages=messages,
+            **options,
         )
         return chat_completion.choices[0].message.content or ""
 
@@ -67,7 +69,7 @@ class OllamaClient(Client):
 
     async def get_chat_completion(
         self, messages, model_id: str = "gpt-4o-mini", options={}
-    ):
+    ) -> str:
         response = ollama.chat(
             model_id,
             messages,
@@ -92,10 +94,10 @@ class Model:
         self.client = client
 
     async def generate(self, messages: list["Message"], options={}) -> str:
-        return await self.client.get_chat_completion(messages, self.id)
+        return await self.client.get_chat_completion(messages, self.id, options)
 
 
-def extract_name_and_content(message):
+def extract_name_and_content(message: str):
     # Find the start index of the name, which is after 'To: '
     start_index = message.find("To: ") + 4
     if start_index == 3:  # 'To: ' not found
@@ -113,7 +115,7 @@ def extract_name_and_content(message):
     return name.strip(), content.strip("\n\t ")
 
 
-def get_element(lst, index, default=None):
+def get_element(lst: list, index: int, default: Any = None):
     try:
         return lst[index]
     except IndexError:
@@ -152,6 +154,7 @@ class MAR:
         personal_prompt: str = "",
         model: Optional[Model] = None,
         temperature: float = 0.5,
+        options: dict = {},
         is_user: bool = False,
         pin_to_all_models: bool = False,
     ):
@@ -162,6 +165,7 @@ class MAR:
             personal_prompt,
             model,
             temperature,
+            options,
             is_user,
             pin_to_all_models,
         )
@@ -181,6 +185,7 @@ class Entity(EntityName):
         personal_prompt: str = "",
         model: Optional[Model] = None,
         temperature: float = 0.5,
+        options: dict = {},
         is_user: bool = False,
         pin_to_all_models: bool = False,
     ):
@@ -194,6 +199,7 @@ class Entity(EntityName):
         self.introduction = introduction
         self.personal_prompt = personal_prompt
         self.temperature = temperature
+        self.options = options
         self.is_user = is_user
         self.message_stack = []
         self.pin_to_all_models = pin_to_all_models
@@ -206,7 +212,7 @@ class Entity(EntityName):
             raise ValueError("Entity model cannot be None")
         return await self.model.generate(
             [message.format(self) for message in self.message_stack],
-            {"temperature": self.temperature},
+            {"temperature": self.temperature, **self.options},
         )
 
     async def send(
