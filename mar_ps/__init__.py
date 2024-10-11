@@ -1,7 +1,7 @@
 #### Multi-Agent Reasoning Problem Solver
 
 
-from typing import Union, Literal, Optional, TypedDict
+from typing import Union, Literal, Optional, TypedDict, Any
 import asyncio
 import openai
 import ollama
@@ -44,7 +44,7 @@ class OpenAIClient(Client):
         self.openai = openai.OpenAI(api_key=api_key, base_url=base_url, **kwargs)
 
     async def get_chat_completion(
-        self, messages: list["MessageDict"], model_id: str = "gpt-4o-mini", options={}
+        self, messages, model_id: str = "gpt-4o-mini", options={}
     ):
         chat_completion = self.openai.chat.completions.create(
             model=model_id, messages=messages
@@ -66,7 +66,7 @@ class OllamaClient(Client):
         #         )
 
     async def get_chat_completion(
-        self, messages: list["MessageDict"], model_id: str = "gpt-4o-mini", options={}
+        self, messages, model_id: str = "gpt-4o-mini", options={}
     ):
         x = ollama.chat(
             model_id,
