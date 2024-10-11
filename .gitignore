@@ -1,2 +1,9 @@
 .env
-*/__pycache__
+__pycache__
+*/__pycache__/*
+mar_ps/__pycache__/
+mar_ps/__pycache__/*
+dist/*
+dist/
+mar_ps.egg-info
+mar_ps.egg-info/*
