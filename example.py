@@ -69,6 +69,7 @@ fact_checker = mar.Entity(
     gemma2_9b,
     options={"num_context": 64000},
 )
+
 user = mar.Entity(
     "Competition Manager",
     "the competition manager",

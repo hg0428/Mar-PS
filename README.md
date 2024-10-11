@@ -115,9 +115,9 @@ The `openai.OpenAI` instance.
 
 ### `OllamaClient(Client)`
 
-#### `OllamaClient.__init__(self)`
+#### `OllamaClient.__init__(self, host: Optional[str] = None, **kwargs)`
 
-Initializes the Ollama client.
+Initializes the Ollama client with the given host. `kwargs` are passed to `ollama.AsyncClient`.
 
 #### `async OllamaClient.get_chat_completion(self, messages, model_id: str = "gpt-4o-mini", options={}) -> str`
 
@@ -207,12 +207,19 @@ Initializes the entity. Please use `MAR.Entity()` instead. See reference there f
 Generates a response from the entity.
 Streaming is not supported, but the parameter is there. If set to true, you will get a `NotImplementedError`.
 
-#### `Entity.send(self, message: Message | str | None = None, sender: Optional[EntityName] = None, print_all_messages: bool = False)`
+#### `Entity.send(self, message: Message | str | None = None, sender: Optional[EntityName] = None, print_all_messages: bool = False, max_errors_before_handling: int = 3,error_handling_mode: Literal["resend", "resend-empty-message", "quit"] = "resend")`
 
 Sends a message to the entity.
 `message`: The message to send. May be a `Message` object (which includes information such as sender or recipient), or a string. If it is a string, the `sender` parameter is required.
 `sender`: The sender of the message. This is only used if `message` is a string.
 `print_all_messages`: If true, all messages sent in this and subsequent generations will be printed. Defaults to false. Useful if you want to see what they are talking about behind the scenes.
+`max_errors_before_handling`: The maximum number of errors before the message is handled. Defaults to 3.
+`error_handling_mode`: The mode of error handling. Default: `resend`. Options:
+
+- `resend`: if the model produced a message but no recipient, it will be sent back to the entity that it is responding to.
+- `resend-empty-message`: an empty message will be returned to the entity that it is responding to.
+- `quit`: A `RuntimeError` will be raised.
+``
 
 #### `Entity.mar`
 

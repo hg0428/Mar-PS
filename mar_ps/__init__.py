@@ -55,9 +55,8 @@ class OpenAIClient(Client):
 
 
 class OllamaClient(Client):
-
-    def __init__(self):
-        pass
+    def __init__(self, host: Optional[str] = None, **kwargs):
+        self.ollama = ollama.AsyncClient(host, **kwargs)
         # global ollama
         # if ollama == None:
         #     try:
@@ -70,7 +69,7 @@ class OllamaClient(Client):
     async def get_chat_completion(
         self, messages, model_id: str = "gpt-4o-mini", options={}
     ) -> str:
-        response = ollama.chat(
+        response = await self.ollama.chat(
             model_id,
             messages,
             options={
@@ -220,6 +219,10 @@ class Entity(EntityName):
         message: Union["Message", str, None] = None,
         sender: Optional[EntityName] = None,
         print_all_messages: bool = False,
+        max_errors_before_handling: int = 3,
+        error_handling_mode: Literal[
+            "resend", "resend-empty-message", "quit"
+        ] = "resend",
     ):
         if message != None:
             if sender == None and type(message) == Message and message.sender != None:
@@ -242,21 +245,60 @@ class Entity(EntityName):
                 else:
                     print(f"\x1b[32mMessage sent from {sender.id} to {self.id}.\x1b[0m")
         response = ""
+        last_error_count = 0
         while True:
+            if (
+                last_error_count >= max_errors_before_handling
+                or max_errors_before_handling <= 0
+            ):
+                if print_all_messages:
+                    print(
+                        f"\x1b[31mError: too many errors. Handling according to rule {error_handling_mode}.\x1b[0m"
+                    )
+                if error_handling_mode == "raise":
+                    raise RuntimeError(
+                        f"Entity {self.id}, model {(self.model or self.mar.global_default_model or EntityName('unknown')).id}: too many errors. Quitting."
+                    )
+                else:
+                    recipient = [
+                        ent
+                        for ent in [
+                            sender,
+                            message.sender if message else None,
+                            self.mar.entities[0],
+                        ]
+                        if ent
+                        and isinstance(
+                            ent, Entity
+                        )  # Must be an Entity that can be responded to.
+                    ][0]
+                    if (
+                        response == None
+                        or error_handling_mode == "resend-empty-message"
+                    ):
+                        response = ""
+                    break
             if self.is_user:
                 if sender and message:
                     print(f"\x1b[31mAI ({sender.id}): \x1b[0m{message.content}")
-                response = input("\x1b[31mYou: \x1b[0m").replace("\\n", "\n")
-                if not response.startswith("To:") and sender:
-                    response = f"To: {sender.id}\n" + response
+                raw_response = input("\x1b[31mYou: \x1b[0m").replace("\\n", "\n")
+                if not raw_response.startswith("To:") and sender:
+                    raw_response = f"To: {sender.id}\n" + raw_response
             else:
-                response = await self.generate()
-            recipient_name, response = extract_name_and_content(response)
+                raw_response = (await self.generate()).strip(" \t\n")
+            recipient_name, response = extract_name_and_content(raw_response)
             if recipient_name is None or response is None:
-                error = "Error: no recipient name found."
+                error = "Error: no recipient name found. Remember to begin your messages with To:"
                 if print_all_messages:
+                    print(raw_response)
                     print(f"\x1b[31m{error}\x1b[0m")
-                self.message_stack.append(Message(EntityName("system"), self, error))
+                if last_error_count > 0:
+                    self.message_stack[-1].content = error
+                else:
+                    self.message_stack.append(
+                        Message(EntityName("system"), self, error)
+                    )
+                last_error_count += 1
             else:
                 recipient = get_element(
                     [
@@ -268,6 +310,7 @@ class Entity(EntityName):
                     None,
                 )
                 if recipient is None:
+                    print(raw_response)
                     error = f'Error: recipient not found: "{recipient_name}".'
                     if (
                         "," in recipient_name
@@ -278,10 +321,15 @@ class Entity(EntityName):
                             " Currently, only one recipient per message is supported."
                         )
                     if print_all_messages:
+                        print(raw_response)
                         print(f"\x1b[31m{error}\x1b[0m")
-                    self.message_stack.append(
-                        Message(EntityName("system"), self, error)
-                    )
+                    if last_error_count > 0:
+                        self.message_stack[-1].content = error
+                    else:
+                        self.message_stack.append(
+                            Message(EntityName("system"), self, error)
+                        )
+                    last_error_count += 1
 
                 else:
                     break
